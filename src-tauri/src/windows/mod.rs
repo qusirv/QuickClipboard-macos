@@ -1,0 +1,16 @@
+pub mod main_window;
+pub mod settings_window;
+pub mod text_editor_window;
+pub mod quickpaste;
+pub mod tray;
+pub mod community_window;
+pub mod plugins;
+pub mod pin_image_window;
+pub mod updater_window;
+pub mod preview_window;
+pub mod transfer_shelf;
+pub mod receive_box;
+pub mod drop_proxy;
+
+#[cfg(feature = "gpu-image-viewer")]
+pub mod native_pin_window;

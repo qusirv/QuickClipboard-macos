@@ -1,0 +1,118 @@
+# ============================================================
+# QuickClipboard - macOS 自动构建工作流
+# ------------------------------------------------------------
+# 用法：
+#   1. 在 GitHub 新建一个仓库（私有/公开均可）
+#   2. 把 QuickClipboard 源码推上去（确保 .github/workflows/build-macos.yml
+#      位于仓库根目录下）
+#   3. 仓库 Actions 页面 -> 左侧选中 "Build macOS" -> 右侧 "Run workflow"
+#      （之后每次打 v* 开头的 tag 也会自动触发）
+#   4. 等 30~60 分钟（Rust 全量编译较慢），构建完成后在 Actions 运行
+#      记录页底部下载 artifact（.dmg 安装包）
+#
+# 本工作流会自动做 3 个"机械补丁"（不改任何业务逻辑）：
+#   [1] lib.rs / main.rs：windows_subsystem 属性加 windows 条件
+#       （否则 macOS release 编译直接报错）
+#   [2] Cargo.toml：winreg 是 Windows-only crate，移入
+#       [target.'cfg(windows)'.dependencies] 段
+#   [3] tauri.conf.json：打包目标改为 app/dmg（nsis 仅 Windows），
+#       并关闭 updater 签名产物（社区构建无需更新签名）
+# 之后使用作者自带的社区构建脚本（community-build.js），
+# 自动剔除 screenshot-suite / gpu-image-viewer 两个私有插件。
+# ============================================================
+
+name: Build macOS
+
+on:
+  workflow_dispatch:      # 手动触发
+  push:
+    tags:
+      - 'v*'              # 打 tag 自动触发
+
+jobs:
+  build-macos:
+    # 默认 Intel (x64) runner。需要 Apple Silicon 原生包时：
+    # 换成 ARM64 版 macOS runner，并把 rust target 改为 aarch64-apple-darwin
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        # 注意：不带 --recurse-submodules。screenshot-suite 子模块为空目录，
+        # 社区构建脚本会直接从依赖中剔除它，无需拉取。
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      # --------------------------------------------------------
+      # 机械补丁：这 3 处是"不修必挂"的编译硬错误，且修改是
+      # 纯平台条件调整，不影响功能逻辑。
+      # --------------------------------------------------------
+      - name: Apply minimal macOS platform patches
+        run: |
+          set -e
+
+          # [1] windows_subsystem 仅 Windows 生效
+          sed -i 's/cfg_attr(not(debug_assertions), windows_subsystem = "windows")/cfg_attr(all(not(debug_assertions), windows), windows_subsystem = "windows")/' \
+            src-tauri/src/lib.rs src-tauri/src/main.rs
+
+          # [2] winreg 移入 cfg(windows) 依赖段
+          python3 - <<'PY'
+          p = 'src-tauri/Cargo.toml'
+          s = open(p, encoding='utf-8').read()
+          assert 'winreg = "0.55"' in s, 'winreg line not found'
+          s = s.replace('winreg = "0.55"\n', '')
+          marker = "[target.'cfg(windows)'.dependencies]"
+          idx = s.index(marker)
+          nl = s.index('\n', idx)
+          s = s[:nl + 1] + 'winreg = "0.55"\n' + s[nl + 1:]
+          open(p, 'w', encoding='utf-8', newline='\n').write(s)
+          print('[patch] Cargo.toml: winreg moved to cfg(windows)')
+          PY
+
+          # [3] 打包目标 app/dmg + 关闭 updater 签名产物
+          python3 - <<'PY'
+          import json
+          p = 'src-tauri/tauri.conf.json'
+          d = json.load(open(p, encoding='utf-8'))
+          d['bundle']['targets'] = ['app', 'dmg']
+          d['bundle']['createUpdaterArtifacts'] = False
+          with open(p, 'w', encoding='utf-8') as f:
+              json.dump(d, f, indent=2, ensure_ascii=False)
+              f.write('\n')
+          print('[patch] tauri.conf.json: targets=app,dmg, updater artifacts off')
+          PY
+
+      # --------------------------------------------------------
+      # 社区版构建：自动剔除私有插件（screenshot-suite、
+      # gpu-image-viewer），以 --no-default-features 编译。
+      # 构建过程中脚本会自动还原被修改的 Cargo.toml 等文件。
+      # --------------------------------------------------------
+      - name: Build (community edition)
+        run: npm run tauri:build:community
+        env:
+          # 首次构建量大，避免被 runner 判定超时
+          CI: 'true'
+
+      # --------------------------------------------------------
+      # 上传产物：.dmg 安装包 + .app（macOS 应用本体）
+      # 构建成功后到本次运行的 Artifacts 区域下载
+      # --------------------------------------------------------
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickClipboard-macOS-x64
+          path: |
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
+          if-no-files-found: error
+          retention-days: 14
