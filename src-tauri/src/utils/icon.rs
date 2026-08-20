@@ -1,9 +1,12 @@
+#[cfg(windows)]
 use file_icon_provider::get_file_icon;
 use image::{RgbaImage, ImageFormat};
 use std::io::Cursor;
 use sha2::{Sha256, Digest};
 
 // 获取文件图标并转换为 Base64 Data URL
+// （file_icon_provider 仅支持 Windows，其他平台返回 None）
+#[cfg(windows)]
 pub fn get_file_icon_base64(path: &str) -> Option<String> {
     match get_file_icon(path, 32) {
         Ok(icon) => {
@@ -18,7 +21,13 @@ pub fn get_file_icon_base64(path: &str) -> Option<String> {
     }
 }
 
-// 将 Icon 转换为 PNG 格式
+#[cfg(not(windows))]
+pub fn get_file_icon_base64(_path: &str) -> Option<String> {
+    None
+}
+
+// 将 Icon 转换为 PNG 格式（仅 Windows）
+#[cfg(windows)]
 pub fn icon_to_png(icon: &file_icon_provider::Icon) -> Result<Vec<u8>, String> {
     let img = RgbaImage::from_raw(icon.width, icon.height, icon.pixels.clone())
         .ok_or("创建图像失败")?;
@@ -39,7 +48,8 @@ fn calculate_icon_hash(data: &[u8]) -> String {
     hash[..16].to_string()
 }
 
-// 保存应用图标到 app_icons 目录
+// 保存应用图标到 app_icons 目录（仅 Windows 可获取 exe 图标）
+#[cfg(windows)]
 pub fn save_app_icon(exe_path: &str) -> Option<String> {
     let icon = match get_file_icon(exe_path, 32) {
         Ok(icon) => icon,
@@ -73,4 +83,10 @@ pub fn save_app_icon(exe_path: &str) -> Option<String> {
     }
     
     Some(hash)
+}
+
+// 其他平台无 exe 图标能力
+#[cfg(not(windows))]
+pub fn save_app_icon(_exe_path: &str) -> Option<String> {
+    None
 }

@@ -30,35 +30,54 @@ pub struct OcrResult {
 // OCR识别图片字节数组
 #[tauri::command]
 pub async fn recognize_image_ocr(image_data: Vec<u8>) -> Result<OcrResult, String> {
-    tokio::task::spawn_blocking(move || {
-        use qcocr::recognize_from_bytes;
-        
-        let result = recognize_from_bytes(&image_data, None)
-            .map_err(|e| format!("OCR识别失败: {}", e))?;
-        
-        convert_ocr_result(result)
-    })
-    .await
-    .map_err(|e| format!("任务执行失败: {}", e))?
+    #[cfg(windows)]
+    {
+        tokio::task::spawn_blocking(move || {
+            use qcocr::recognize_from_bytes;
+            
+            let result = recognize_from_bytes(&image_data, None)
+                .map_err(|e| format!("OCR识别失败: {}", e))?;
+            
+            convert_ocr_result(result)
+        })
+        .await
+        .map_err(|e| format!("任务执行失败: {}", e))?
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = image_data;
+        Err("OCR 识别功能当前仅支持 Windows 平台".to_string())
+    }
 }
 
 // OCR识别图片文件
 #[tauri::command]
 pub async fn recognize_file_ocr(file_path: String, language: Option<String>) -> Result<OcrResult, String> {
-    tokio::task::spawn_blocking(move || {
-        use qcocr::recognize_from_file;
-        
-        let lang = language.as_deref();
-        let result = recognize_from_file(&file_path, lang)
-            .map_err(|e| format!("OCR识别失败: {}", e))?;
-        
-        convert_ocr_result(result)
-    })
-    .await
-    .map_err(|e| format!("任务执行失败: {}", e))?
+    #[cfg(windows)]
+    {
+        tokio::task::spawn_blocking(move || {
+            use qcocr::recognize_from_file;
+            
+            let lang = language.as_deref();
+            let result = recognize_from_file(&file_path, lang)
+                .map_err(|e| format!("OCR识别失败: {}", e))?;
+            
+            convert_ocr_result(result)
+        })
+        .await
+        .map_err(|e| format!("任务执行失败: {}", e))?
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = (file_path, language);
+        Err("OCR 识别功能当前仅支持 Windows 平台".to_string())
+    }
 }
 
-// 转换OCR结果为返回格式
+// 转换OCR结果为返回格式（仅 Windows 使用 qcocr）
+#[cfg(windows)]
 fn convert_ocr_result(result: qcocr::OcrRecognitionResult) -> Result<OcrResult, String> {
     let lines = result.lines.iter().map(|line| {
         let words = line.words.iter().map(|word| OcrWord {

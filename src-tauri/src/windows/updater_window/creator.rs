@@ -122,7 +122,8 @@ async fn check_updates_if_due(app: &AppHandle) -> Result<bool, String> {
     check_updates(app, !settings.disable_update_popup).await
 }
 
-// 检测当前运行的程序是否为安装版
+// 检测当前运行的程序是否为安装版（通过注册表，仅 Windows）
+#[cfg(windows)]
 fn is_installed_version() -> bool {
     use winreg::enums::*;
     use winreg::RegKey;
@@ -171,6 +172,12 @@ fn is_installed_version() -> bool {
         }
     }
     
+    false
+}
+
+// 其他平台：无注册表安装信息，视为非安装版（便携模式）
+#[cfg(not(windows))]
+fn is_installed_version() -> bool {
     false
 }
 

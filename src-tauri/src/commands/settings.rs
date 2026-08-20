@@ -295,7 +295,10 @@ pub fn toggle_clipboard_monitor(app: &tauri::AppHandle) -> Result<(), String> {
     
     let result = save_settings(settings, app.clone());
     if crate::services::low_memory::is_low_memory_mode() {
+        #[cfg(windows)]
         let _ = crate::windows::tray::native_menu::update_native_menu(app);
+        #[cfg(not(windows))]
+        let _ = app;
     }
 
     let message = if enabled { "剪贴板监听已启用" } else { "剪贴板监听已禁用" };
@@ -317,7 +320,10 @@ pub fn toggle_paste_with_format(app: &tauri::AppHandle) -> Result<(), String> {
     
     let result = save_settings(settings, app.clone());
     if crate::services::low_memory::is_low_memory_mode() {
+        #[cfg(windows)]
         let _ = crate::windows::tray::native_menu::update_native_menu(app);
+        #[cfg(not(windows))]
+        let _ = app;
     }
 
     let message = if enabled { "格式粘贴已启用" } else { "格式粘贴已禁用" };

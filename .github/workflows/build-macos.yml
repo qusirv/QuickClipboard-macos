@@ -10,13 +10,13 @@
 #   4. 等 30~60 分钟（Rust 全量编译较慢），构建完成后在 Actions 运行
 #      记录页底部下载 artifact（.dmg 安装包）
 #
-# 本工作流会自动做 3 个"机械补丁"（不改任何业务逻辑）：
-#   [1] lib.rs / main.rs：windows_subsystem 属性加 windows 条件
-#       （否则 macOS release 编译直接报错）
-#   [2] Cargo.toml：winreg 是 Windows-only crate，移入
-#       [target.'cfg(windows)'.dependencies] 段
-#   [3] tauri.conf.json：打包目标改为 app/dmg（nsis 仅 Windows），
-#       并关闭 updater 签名产物（社区构建无需更新签名）
+# 本工作流基于已适配 macOS 的源码构建（适配已直接提交到仓库）：
+#   [1] lib.rs / main.rs：windows_subsystem 属性已加 windows 条件
+#   [2] Cargo.toml：winreg / qcocr / file_icon_provider 已移入
+#       [target.'cfg(windows)'.dependencies] 段（Windows 专属依赖）
+#   [3] 代码：OCR / 文件图标 / 注册表安装检测等 Windows 专属功能
+#       已改为 cfg 双版本（macOS 上优雅降级）
+# 仅剩打包目标（nsis 仅 Windows）由本工作流在运行时改为 app/dmg。
 # 之后使用作者自带的社区构建脚本（community-build.js），
 # 自动剔除 screenshot-suite / gpu-image-viewer 两个私有插件。
 # ============================================================
@@ -54,41 +54,14 @@ jobs:
         run: npm ci
 
       # --------------------------------------------------------
-      # 机械补丁：这 3 处是"不修必挂"的编译硬错误，且修改是
-      # 纯平台条件调整，不影响功能逻辑。
+      # 打包目标调整：tauri.conf.json 的默认目标 nsis 仅适用于
+      # Windows，这里在 macOS 构建机上运行时改为 app/dmg，
+      # 并关闭 updater 签名产物（不影响仓库本身的跨平台配置）。
       # --------------------------------------------------------
-      - name: Apply minimal macOS platform patches
+      - name: Set macOS bundle targets
         run: |
           set -e
 
-          # [1] windows_subsystem 仅 Windows 生效
-          # 注意：不用 sed -i（macOS 的 BSD sed 与 GNU sed 语法不兼容）
-          python3 - <<'PY'
-          for p in ('src-tauri/src/lib.rs', 'src-tauri/src/main.rs'):
-              s = open(p, encoding='utf-8').read()
-              old = 'cfg_attr(not(debug_assertions), windows_subsystem = "windows")'
-              new = 'cfg_attr(all(not(debug_assertions), windows), windows_subsystem = "windows")'
-              assert old in s, f'{p}: windows_subsystem attr not found'
-              s = s.replace(old, new)
-              open(p, 'w', encoding='utf-8', newline='\n').write(s)
-              print(f'[patch] {p}: windows_subsystem -> windows only')
-          PY
-
-          # [2] winreg 移入 cfg(windows) 依赖段
-          python3 - <<'PY'
-          p = 'src-tauri/Cargo.toml'
-          s = open(p, encoding='utf-8').read()
-          assert 'winreg = "0.55"' in s, 'winreg line not found'
-          s = s.replace('winreg = "0.55"\n', '')
-          marker = "[target.'cfg(windows)'.dependencies]"
-          idx = s.index(marker)
-          nl = s.index('\n', idx)
-          s = s[:nl + 1] + 'winreg = "0.55"\n' + s[nl + 1:]
-          open(p, 'w', encoding='utf-8', newline='\n').write(s)
-          print('[patch] Cargo.toml: winreg moved to cfg(windows)')
-          PY
-
-          # [3] 打包目标 app/dmg + 关闭 updater 签名产物
           python3 - <<'PY'
           import json
           p = 'src-tauri/tauri.conf.json'

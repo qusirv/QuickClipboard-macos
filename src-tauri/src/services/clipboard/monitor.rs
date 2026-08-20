@@ -376,7 +376,10 @@ fn emit_clipboard_updated(payload: ClipboardUpdatedEventPayload) -> Result<(), S
     let handle = app_handle.as_ref().ok_or("应用未初始化")?;
 
     if crate::services::low_memory::is_low_memory_mode() {
+        #[cfg(windows)]
         let _ = crate::windows::tray::native_menu::update_native_menu(handle);
+        #[cfg(not(windows))]
+        let _ = handle;
     }
 
     emit_clipboard_updated_event(handle, Some(payload))

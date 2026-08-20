@@ -530,7 +530,8 @@ fn extract_gif_first_frame(data: &[u8]) -> Option<Vec<u8>> {
     Some(buffer)
 }
 
-// 使用 OCR 识别图片文字
+// 使用 OCR 识别图片文字（qcocr 仅支持 Windows）
+#[cfg(windows)]
 fn ocr_image_text(data: &[u8]) -> Option<String> {
     use qcocr::recognize_from_bytes;
     use std::sync::mpsc;
@@ -569,6 +570,12 @@ fn ocr_image_text(data: &[u8]) -> Option<String> {
     } else {
         Some(cleaned)
     }
+}
+
+// macOS 等平台无 OCR 能力，直接返回 None
+#[cfg(not(windows))]
+fn ocr_image_text(_data: &[u8]) -> Option<String> {
+    None
 }
 
 fn extension_from_filename(filename: &str, fallback: &str) -> String {

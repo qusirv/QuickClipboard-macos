@@ -1,4 +1,4 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(all(not(debug_assertions), windows), windows_subsystem = "windows")]
 
 fn main() {
     let is_maintenance = std::env::var("QUICKCLIPBOARD_MAINTENANCE").map_or(false, |v| v == "1")
