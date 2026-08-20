@@ -1,4 +1,5 @@
 use tauri::{AppHandle, WebviewUrl, WebviewWindowBuilder};
+use crate::utils::WindowBuilderExt;
 
 pub fn create_community_window(app: &AppHandle) -> Result<(), String> {
     let _window = WebviewWindowBuilder::new(
@@ -12,13 +13,11 @@ pub fn create_community_window(app: &AppHandle) -> Result<(), String> {
     .resizable(true)
     .maximizable(false)
     .decorations(true)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .skip_taskbar(false)
     .visible(true)
     .focused(true)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .shadow(false)
     .build()
     .map_err(|e| format!("创建社区交流窗口失败: {}", e))?;

@@ -1,4 +1,5 @@
 use tauri::{AppHandle, Manager, Emitter, WebviewUrl, WebviewWindowBuilder};
+use crate::utils::WindowBuilderExt;
 use super::state::set_visible;
 use crate::utils::positioning::center_at_cursor;
 use crate::services::system::raw_input::{enable_quickpaste_keyboard_mode, disable_quickpaste_keyboard_mode};
@@ -11,8 +12,7 @@ fn create_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
         .min_inner_size(200.0, 300.0)
         .max_inner_size(800.0, 1000.0)
         .decorations(false)
-        #[cfg(not(target_os = "macos"))]
-        .transparent(true)
+        .transparent_cp(true)
         .shadow(false)
         .always_on_top(true)
         .skip_taskbar(true)
@@ -23,8 +23,7 @@ fn create_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
         .focusable(false)
         .maximizable(false)
         .minimizable(false)
-        #[cfg(not(target_os = "macos"))]
-        .drag_and_drop(false)
+        .drag_and_drop_cp(false)
         .build()
         .map_err(|e| e.to_string())?;
     

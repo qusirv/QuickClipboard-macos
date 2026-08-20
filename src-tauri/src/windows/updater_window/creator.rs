@@ -1,4 +1,5 @@
 use tauri::{AppHandle, WebviewUrl, WebviewWindowBuilder, WebviewWindow, Manager};
+use crate::utils::WindowBuilderExt;
 use tauri::{Emitter, Listener};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{LazyLock, Mutex};
@@ -203,8 +204,7 @@ pub fn open_updater_window(app: &AppHandle, force_update: bool) -> Result<Webvie
     )
     .title("更新")
     .inner_size(360.0, 130.0)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .resizable(false)
     .maximizable(false)
@@ -215,8 +215,7 @@ pub fn open_updater_window(app: &AppHandle, force_update: bool) -> Result<Webvie
     .visible(true)
     .focused(false)
     .focusable(false)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建更新窗口失败: {}", e))?;
 

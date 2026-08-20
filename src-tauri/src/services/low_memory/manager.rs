@@ -1,4 +1,5 @@
 use tauri::{AppHandle, Manager};
+use crate::utils::WindowBuilderExt;
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use super::state::{
@@ -294,8 +295,7 @@ fn recreate_main_window(app: &AppHandle) -> Result<(), String> {
     .inner_size(360.0, 520.0)
     .min_inner_size(350.0, 500.0)
     .decorations(false)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .always_on_top(true)
     .skip_taskbar(true)

@@ -8,10 +8,12 @@ pub mod text;
 pub mod html;
 pub mod app_links;
 pub mod cf_html;
+pub mod window_ext;
 
 pub use screen::init_screen_utils;
 pub use system::get_text_scale_factor;
 pub use text::{is_textual_content_type, truncate_string, truncate_around_keyword};
 pub use html::truncate_html;
 pub use image::{is_image_file, get_image_dimensions};
+pub use window_ext::WindowBuilderExt;
 

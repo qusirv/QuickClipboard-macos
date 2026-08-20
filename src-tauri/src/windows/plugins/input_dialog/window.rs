@@ -1,5 +1,6 @@
 // 输入对话框窗口管理
 use serde::{Deserialize, Serialize};
+use crate::utils::WindowBuilderExt;
 use tauri::{AppHandle, Manager, WebviewWindowBuilder};
 
 // 输入框类型
@@ -68,8 +69,7 @@ pub async fn show_dialog(
     .always_on_top(true)
     .focused(true)
     .visible(false)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建输入对话框失败: {}", e))?;
 

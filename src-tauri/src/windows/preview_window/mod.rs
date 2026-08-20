@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use crate::utils::WindowBuilderExt;
 use serde::Serialize;
 use serde::Deserialize;
 use std::sync::atomic::AtomicBool;
@@ -183,16 +184,14 @@ fn create_preview_window(
     .maximizable(false)
     .minimizable(false)
     .decorations(false)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .always_on_top(true)
     .skip_taskbar(true)
     .focused(false)
     .focusable(false)
     .visible(false)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建预览窗口失败: {}", e))?;
 

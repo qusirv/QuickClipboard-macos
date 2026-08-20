@@ -1,4 +1,5 @@
 use tauri::AppHandle;
+use crate::utils::WindowBuilderExt;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn create_text_editor_window(
@@ -34,14 +35,12 @@ pub fn create_text_editor_window(
     .resizable(true)
     .maximizable(true)
     .decorations(false)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .skip_taskbar(false)
     .visible(true)
     .focused(true)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建文本编辑器窗口失败: {}", e))?;
 

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::utils::WindowBuilderExt;
 use tauri::{AppHandle, Emitter, LogicalSize, Manager, WebviewWindow, WebviewWindowBuilder};
 
 const LABEL: &str = "context-menu";
@@ -466,16 +467,14 @@ fn build_or_reuse_window(app: &AppHandle, monitor: MonitorContext, is_tray: bool
     .maximizable(false)
     .minimizable(false)
     .decorations(false)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .always_on_top(true)
     .focused(is_tray)
     .focusable(is_tray)
     .visible(false)
     .skip_taskbar(true)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建菜单窗口失败: {}", e))?;
 

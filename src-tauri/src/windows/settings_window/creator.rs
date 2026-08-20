@@ -1,4 +1,5 @@
 use tauri::AppHandle;
+use crate::utils::WindowBuilderExt;
 
 // 创建设置窗口
 pub fn create_settings_window(app: &AppHandle) -> Result<(), String> {
@@ -14,14 +15,12 @@ pub fn create_settings_window(app: &AppHandle) -> Result<(), String> {
     .resizable(true)
     .maximizable(false)
     .decorations(false)
-    #[cfg(not(target_os = "macos"))]
-    .transparent(true)
+    .transparent_cp(true)
     .shadow(false)
     .skip_taskbar(false)
     .visible(true)
     .focused(true)
-    #[cfg(not(target_os = "macos"))]
-    .drag_and_drop(false)
+    .drag_and_drop_cp(false)
     .build()
     .map_err(|e| format!("创建设置窗口失败: {}", e))?;
 
