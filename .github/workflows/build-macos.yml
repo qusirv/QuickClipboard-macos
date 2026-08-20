@@ -62,8 +62,17 @@ jobs:
           set -e
 
           # [1] windows_subsystem 仅 Windows 生效
-          sed -i 's/cfg_attr(not(debug_assertions), windows_subsystem = "windows")/cfg_attr(all(not(debug_assertions), windows), windows_subsystem = "windows")/' \
-            src-tauri/src/lib.rs src-tauri/src/main.rs
+          # 注意：不用 sed -i（macOS 的 BSD sed 与 GNU sed 语法不兼容）
+          python3 - <<'PY'
+          for p in ('src-tauri/src/lib.rs', 'src-tauri/src/main.rs'):
+              s = open(p, encoding='utf-8').read()
+              old = 'cfg_attr(not(debug_assertions), windows_subsystem = "windows")'
+              new = 'cfg_attr(all(not(debug_assertions), windows), windows_subsystem = "windows")'
+              assert old in s, f'{p}: windows_subsystem attr not found'
+              s = s.replace(old, new)
+              open(p, 'w', encoding='utf-8', newline='\n').write(s)
+              print(f'[patch] {p}: windows_subsystem -> windows only')
+          PY
 
           # [2] winreg 移入 cfg(windows) 依赖段
           python3 - <<'PY'
