@@ -238,12 +238,14 @@ async fn create_pin_image_window(
     .resizable(false)
     .maximizable(false)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)
     .skip_taskbar(true)
     .focused(false)
     .visible(false)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(false)
     .build()
     .map_err(|e| format!("创建贴图窗口失败: {}", e))?;

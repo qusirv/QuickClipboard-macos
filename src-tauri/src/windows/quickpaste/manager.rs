@@ -11,6 +11,7 @@ fn create_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
         .min_inner_size(200.0, 300.0)
         .max_inner_size(800.0, 1000.0)
         .decorations(false)
+        #[cfg(not(target_os = "macos"))]
         .transparent(true)
         .shadow(false)
         .always_on_top(true)
@@ -22,6 +23,7 @@ fn create_window(app: &AppHandle) -> Result<tauri::WebviewWindow, String> {
         .focusable(false)
         .maximizable(false)
         .minimizable(false)
+        #[cfg(not(target_os = "macos"))]
         .drag_and_drop(false)
         .build()
         .map_err(|e| e.to_string())?;

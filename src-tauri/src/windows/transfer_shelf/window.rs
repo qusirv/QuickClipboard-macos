@@ -58,6 +58,7 @@ pub fn create_shelf_window(
         .maximizable(false)
         .minimizable(true)
         .decorations(false)
+        #[cfg(not(target_os = "macos"))]
         .transparent(true)
         .shadow(false)
         .always_on_top(true)

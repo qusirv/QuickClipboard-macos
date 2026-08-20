@@ -12,10 +12,12 @@ pub fn create_community_window(app: &AppHandle) -> Result<(), String> {
     .resizable(true)
     .maximizable(false)
     .decorations(true)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .skip_taskbar(false)
     .visible(true)
     .focused(true)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(false)
     .shadow(false)
     .build()

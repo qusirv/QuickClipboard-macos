@@ -466,6 +466,7 @@ fn build_or_reuse_window(app: &AppHandle, monitor: MonitorContext, is_tray: bool
     .maximizable(false)
     .minimizable(false)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)
@@ -473,6 +474,7 @@ fn build_or_reuse_window(app: &AppHandle, monitor: MonitorContext, is_tray: bool
     .focusable(is_tray)
     .visible(false)
     .skip_taskbar(true)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(false)
     .build()
     .map_err(|e| format!("创建菜单窗口失败: {}", e))?;

@@ -183,6 +183,7 @@ fn create_preview_window(
     .maximizable(false)
     .minimizable(false)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)
@@ -190,6 +191,7 @@ fn create_preview_window(
     .focused(false)
     .focusable(false)
     .visible(false)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(false)
     .build()
     .map_err(|e| format!("创建预览窗口失败: {}", e))?;

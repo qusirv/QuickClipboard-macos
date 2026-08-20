@@ -32,6 +32,7 @@ pub fn create_receive_box_window(app: &AppHandle, focus: bool) -> Result<Webview
     .maximizable(false)
     .minimizable(true)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)

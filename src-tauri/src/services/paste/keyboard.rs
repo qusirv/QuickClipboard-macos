@@ -72,6 +72,13 @@ pub fn set_trigger_key_raw(vk: u16) {
     *CURRENT_TRIGGER_KEY.lock().unwrap_or_else(|error| error.into_inner()) = Some(vk);
 }
 
+// macOS/Linux 无虚拟键码概念，空实现（模拟粘贴走 enigo，不需要触发键状态）
+#[cfg(not(target_os = "windows"))]
+pub fn set_trigger_key_from_shortcut(_shortcut: &str) {}
+
+#[cfg(not(target_os = "windows"))]
+pub fn set_trigger_key_raw(_vk: u16) {}
+
 #[cfg(target_os = "windows")]
 fn take_trigger_key() -> Option<u16> {
     CURRENT_TRIGGER_KEY

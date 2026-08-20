@@ -203,6 +203,7 @@ pub fn open_updater_window(app: &AppHandle, force_update: bool) -> Result<Webvie
     )
     .title("更新")
     .inner_size(360.0, 130.0)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .resizable(false)
@@ -214,6 +215,7 @@ pub fn open_updater_window(app: &AppHandle, force_update: bool) -> Result<Webvie
     .visible(true)
     .focused(false)
     .focusable(false)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(false)
     .build()
     .map_err(|e| format!("创建更新窗口失败: {}", e))?;

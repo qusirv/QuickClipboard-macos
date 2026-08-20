@@ -85,6 +85,7 @@ fn create_drop_proxy(app: &AppHandle) -> Result<WebviewWindow, String> {
     .title("拖放接收层")
     .inner_size(320.0, 180.0)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)
@@ -94,6 +95,7 @@ fn create_drop_proxy(app: &AppHandle) -> Result<WebviewWindow, String> {
     .focusable(false)
     .maximizable(false)
     .minimizable(false)
+    #[cfg(not(target_os = "macos"))]
     .drag_and_drop(true)
     .build()
     .map_err(|e| format!("创建拖放代理窗口失败: {}", e))?;

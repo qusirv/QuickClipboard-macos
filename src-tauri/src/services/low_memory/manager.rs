@@ -294,6 +294,7 @@ fn recreate_main_window(app: &AppHandle) -> Result<(), String> {
     .inner_size(360.0, 520.0)
     .min_inner_size(350.0, 500.0)
     .decorations(false)
+    #[cfg(not(target_os = "macos"))]
     .transparent(true)
     .shadow(false)
     .always_on_top(true)
