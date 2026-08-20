@@ -1,5 +1,5 @@
-use tauri::{AppHandle, WebviewUrl, WebviewWindowBuilder};
 use crate::utils::WindowBuilderExt;
+use tauri::{AppHandle, WebviewUrl, WebviewWindowBuilder};
 
 pub fn create_community_window(app: &AppHandle) -> Result<(), String> {
     let _window = WebviewWindowBuilder::new(

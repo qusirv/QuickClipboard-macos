@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::utils::WindowBuilderExt;
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, LogicalSize, Manager, WebviewWindow, WebviewWindowBuilder};
 
 const LABEL: &str = "context-menu";

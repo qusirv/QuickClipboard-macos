@@ -1,5 +1,5 @@
-use tauri::{AppHandle, Manager};
 use crate::utils::WindowBuilderExt;
+use tauri::{AppHandle, Manager};
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use super::state::{

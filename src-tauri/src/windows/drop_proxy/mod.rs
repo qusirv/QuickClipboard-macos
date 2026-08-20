@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use crate::utils::WindowBuilderExt;
+use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;

@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use crate::utils::WindowBuilderExt;
+use once_cell::sync::Lazy;
 use serde::Serialize;
 use serde::Deserialize;
 use std::sync::atomic::AtomicBool;

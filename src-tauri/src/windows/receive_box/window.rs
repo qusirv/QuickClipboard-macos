@@ -1,5 +1,5 @@
-use tauri::{
 use crate::utils::WindowBuilderExt;
+use tauri::{
     AppHandle, Manager, PhysicalPosition, WebviewUrl, WebviewWindow,
     WebviewWindowBuilder, WindowEvent,
 };

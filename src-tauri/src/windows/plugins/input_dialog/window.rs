@@ -1,6 +1,6 @@
 // 输入对话框窗口管理
-use serde::{Deserialize, Serialize};
 use crate::utils::WindowBuilderExt;
+use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager, WebviewWindowBuilder};
 
 // 输入框类型

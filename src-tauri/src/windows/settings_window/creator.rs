@@ -1,5 +1,5 @@
-use tauri::AppHandle;
 use crate::utils::WindowBuilderExt;
+use tauri::AppHandle;
 
 // 创建设置窗口
 pub fn create_settings_window(app: &AppHandle) -> Result<(), String> {

@@ -1,5 +1,5 @@
-use tauri::AppHandle;
 use crate::utils::WindowBuilderExt;
+use tauri::AppHandle;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn create_text_editor_window(

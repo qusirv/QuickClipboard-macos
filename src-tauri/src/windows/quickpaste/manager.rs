@@ -1,5 +1,5 @@
-use tauri::{AppHandle, Manager, Emitter, WebviewUrl, WebviewWindowBuilder};
 use crate::utils::WindowBuilderExt;
+use tauri::{AppHandle, Manager, Emitter, WebviewUrl, WebviewWindowBuilder};
 use super::state::set_visible;
 use crate::utils::positioning::center_at_cursor;
 use crate::services::system::raw_input::{enable_quickpaste_keyboard_mode, disable_quickpaste_keyboard_mode};
